@@ -19,11 +19,12 @@ services:
 
   db:
     image: clickhouse/clickhouse-server
-    expose:
-      - 8123
-      - 9000
+    ports:
+      - 8123:8123
+      - 9000:9000
     volumes:
-        - db:/var/lib/clickhouse
+        #- db:/var/lib/clickhouse
+        - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
 #       - ./config.xml:/etc/clickhouse-server/config.xml
     ulimits:
       nproc: 65535
@@ -48,5 +49,5 @@ networks:
        - subnet: 10.5.0.0/16
          gateway: 10.5.0.1
 
-volumes:
-  db:
+#volumes:
+#  db:

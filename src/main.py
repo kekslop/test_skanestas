@@ -1,28 +1,28 @@
+from logging import INFO
+from datetime import datetime
 import clickhouse_logging
 import json
 import logging
-from logging import INFO
 import random
 import time
-from datetime import datetime
 
 now = datetime.now()
 
 date_time = now.strftime("%Y-%m-%d")
-print("date and time:",date_time)
+
 logging.basicConfig(
     level="INFO",
     format="%(asctime)s — %(name)s — %(levelname)s — %(message)s",
 )
 logger = logging.getLogger(__name__)
 
-CH_HTTP_INTERFACE = 'http://10.5.0.3:8123'
+CH_HTTP_INTERFACE = 'http://192.168.99.12:8123'
 
 ch_logger = clickhouse_logging.getLogger(name=__name__,
                                          capacity=1000,  # capacity before send to CH
-                                         filename='log.txt',  # optional,  if specified also send to local file
+                                         filename='log.txt',  # optional, if specified also send to local file
                                          level=INFO,
-                                         ch_table='test.log',  # target CH table
+                                         ch_table='docker.docker',  # target CH table
                                          ch_conn=CH_HTTP_INTERFACE)
 
 
@@ -41,6 +41,5 @@ if __name__ == "__main__":
             "sum_bid": sum(v for k, v in msg.items() if "bid" in k),
             "sum_ask": sum(v for k, v in msg.items() if "ask" in k),
         }
-        #ch_logger.info(f"{json.dumps(msg)}")
         ch_logger.info('test', extra={'col': f"{json.dumps(msg)}", 'dt': f"{date_time}"})
         time.sleep(0.001)
