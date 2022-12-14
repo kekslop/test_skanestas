@@ -41,8 +41,7 @@ jobs:
         uses: JimCronqvist/action-ssh@master
         with:
           hosts: ${{ secrets.DEPLOY_HOSTS }}
-          username: ${{ secrets.USERNAME }}
-          password: ${{ secrets.PASSWORD }}
+          privateKey: ${{ secrets.DEPLOY_PRIVATE_KEY }}
           command: |
             bash -c 'cd ${{ secrets.DEPLOY_PATH }} && docker-compose down'
             bash -c 'cd ${{ secrets.DEPLOY_PATH }} && docker-compose pull'
