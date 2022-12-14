@@ -1,0 +1,48 @@
+name: Release build and push to Docker Hub
+
+on:
+  push:
+    tags:
+      - 'v*'
+      - '!v*-rc*'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Git clone repo
+        uses: actions/checkout@v1
+
+      - name: Get the version from tag
+        id: get_env
+        run: | 
+          echo ::set-output name=VERSION::${GITHUB_REF##*v}
+          echo ::set-output name=NAME::${GITHUB_REPOSITORY#*/}
+      - name: Docker Login
+        uses: Azure/docker-login@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build image
+        run: |
+          docker build -t app2 .
+      - name: Set tags
+        run: |
+          docker tag app2:latest kekslop/${{ steps.get_env.outputs.NAME }}:latest
+          docker tag app2:latest kekslop/${{ steps.get_env.outputs.NAME }}:${{ steps.get_env.outputs.VERSION }}
+      - name: Push to Docker Hub
+        run: |
+          docker push kekslop/${{ steps.get_env.outputs.NAME }}:${{ steps.get_env.outputs.VERSION }}
+          docker push kekslop/${{ steps.get_env.outputs.NAME }}:latest
+      - name: Execute SSH commmands on remote server
+        uses: JimCronqvist/action-ssh@master
+        with:
+          hosts: ${{ secrets.DEPLOY_HOSTS }}
+          privateKey: ${{ secrets.DEPLOY_PRIVATE_KEY }}
+          command: |
+            bash -c 'cd ${{ secrets.DEPLOY_PATH }} && docker-compose down'
+            bash -c 'cd ${{ secrets.DEPLOY_PATH }} && docker-compose pull'
+            bash -c 'cd ${{ secrets.DEPLOY_PATH }} && docker-compose up -d'
