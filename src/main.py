@@ -10,6 +10,7 @@ now = datetime.now()
 
 date_time = now.strftime("%Y-%m-%d")
 print(date_time)
+print("DEV")
 logging.basicConfig(
     level="INFO",
     format="%(asctime)s — %(name)s — %(levelname)s — %(message)s",
